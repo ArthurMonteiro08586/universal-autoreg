@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNIVERSAL AUTOREG v2</title>
+<style>
+:root{--bg:#0b0d10;--bg2:#101318;--card:#141922;--border:#1f2733;--txt:#d8dbe2;--dim:#737d8c;--acc:#ff6b35;--acc2:#ffa07a;--ok:#5ddc7b;--bad:#ff6b6b;--blue:#6db3e8}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--txt);font:13.5px/1.5 Consolas,"JetBrains Mono","Courier New",monospace;display:flex;overflow:hidden}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#242d3a;border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+#side{width:216px;min-width:216px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh}
+#logo{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+#logo b{color:var(--acc);font-size:16px;letter-spacing:.5px}
+#logo span{display:block;color:var(--dim);font-size:10.5px;margin-top:2px}
+.nav{flex:1;padding:10px 8px;overflow-y:auto}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--dim);padding:9px 10px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left;margin-bottom:2px}
+.nav button:hover{background:#171d27;color:var(--txt)}
+.nav button.active{background:linear-gradient(90deg,rgba(255,107,53,.16),rgba(255,107,53,.04));color:var(--acc);font-weight:bold;box-shadow:inset 2px 0 0 var(--acc)}
+.nav .ico{width:18px;text-align:center;font-size:15px}
+.nav .badge{margin-left:auto;background:#232c3a;color:var(--dim);border-radius:8px;padding:0 7px;font-size:10.5px;line-height:16px}
+.nav .badge.hot{background:var(--acc);color:#0b0d10;font-weight:bold}
+#sidefoot{padding:10px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--dim)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.dot.g{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.dot.r{background:var(--bad)}
+.dot.o{background:var(--acc);box-shadow:0 0 6px var(--acc);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+#main{flex:1;display:flex;flex-direction:column;height:100vh;min-width:0}
+#topbar{display:flex;gap:14px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap}
+.tb{font-size:11.5px;color:var(--dim);white-space:nowrap}
+.tb b{color:var(--txt);font-size:13px}
+.tb b.acc{color:var(--acc)}
+.tb b.ok{color:var(--ok)}
+#content{flex:1;overflow-y:auto;padding:18px}
+.view{display:none}
+.view.active{display:block}
+h2.vt{color:var(--acc);font-size:15px;margin-bottom:3px}
+.vs{color:var(--dim);font-size:11.5px;margin-bottom:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.card b.big{display:block;font-size:21px;color:var(--acc)}
+.card span{font-size:10.5px;color:var(--dim)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px 16px;margin-bottom:14px}
+.panel h3{color:var(--acc);font-size:12.5px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.6px}
+table{border-collapse:collapse;width:100%}
+th{color:var(--dim);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;background:var(--card);z-index:2}
+td{padding:7px 8px;border-bottom:1px solid #181f29;vertical-align:middle;font-size:12.5px}
+tr:hover td{background:#151b25}
+.pid{color:var(--acc);font-weight:bold;white-space:nowrap}
+.tag{display:inline-block;background:#1b2430;border-radius:4px;padding:1px 7px;color:var(--blue);white-space:nowrap;font-size:10.5px;margin:1px 2px 1px 0}
+.tag.free{background:#13251a;color:var(--ok)}
+.tag.paid{background:#291d13;color:#e0a860}
+.tag.bad{background:#2b1519;color:var(--bad)}
+.tag.acc{background:#2b1a10;color:var(--acc)}
+button{background:var(--acc);border:0;color:#0b0d10;font-weight:bold;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;transition:filter .12s}
+button:hover{filter:brightness(1.12)}
+button.sec{background:var(--card);color:var(--txt);border:1px solid var(--border);font-weight:normal}
+button.stop{background:#331c22;color:var(--bad);border:1px solid #4a2730}
+button:disabled{background:#1c232e;color:#4d5766;cursor:default;border-color:transparent}
+input,select,textarea{background:#0b0e13;border:1px solid var(--border);color:var(--txt);padding:5px 9px;border-radius:6px;font-family:inherit;font-size:12.5px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--acc)}
+input[type=number]{width:58px}
+textarea{width:100%;resize:vertical}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.notes{color:var(--dim);font-size:11px}
+a{color:var(--blue)}
+code{background:#0b0e13;border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:11.5px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.dim{color:var(--dim)}
+.bar{height:6px;background:#1c232e;border-radius:4px;overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:4px;transition:width .4s}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:980px){.grid2{grid-template-columns:1fr}#side{width:56px;min-width:56px}#side .nav button span.lbl,#logo span,#sidefoot{display:none}#logo b{font-size:11px}.nav button{justify-content:center}}
+#term{background:#07090c;border-top:1px solid var(--acc);display:none;flex-direction:column;height:250px;min-height:250px}
+#term.open{display:flex}
+#termhead{display:flex;align-items:center;gap:10px;padding:5px 14px;background:#0d1117;border-bottom:1px solid var(--border);font-size:11.5px}
+#termhead b{color:var(--acc)}
+#termbody{flex:1;overflow-y:auto;padding:10px 14px;font-size:11.5px;white-space:pre-wrap;color:#a9d6a9}
+.xbtn{margin-left:auto;background:none;border:0;color:var(--dim);cursor:pointer;font-size:14px;padding:2px 8px;font-weight:normal}
+#toast{position:fixed;bottom:18px;right:18px;background:var(--card);border:1px solid var(--acc);border-radius:9px;padding:10px 16px;display:none;z-index:99;max-width:420px;font-size:12px;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.hbar-mini{display:flex;gap:4px;align-items:flex-end;height:34px}
+.hbar-mini i{width:14px;background:linear-gradient(180deg,var(--acc),#8a3a1c);border-radius:2px 2px 0 0;min-height:2px}
+.copy{cursor:pointer;color:var(--blue);font-size:11.5px;border-bottom:1px dashed rgba(109,179,232,.5)}
+.copy:hover{color:var(--acc);border-color:var(--acc)}
+</style>
+</head>
+<body>
+
+<div id="side">
+  <div id="logo"><b>&#9889; UA v2</b><span>universal autoreg</span></div>
+  <div class="nav">
+    <button class="active" data-v="v-home" onclick="nav(this)"><span class="ico">&#9673;</span><span class="lbl">Обзор</span></button>
+    <button data-v="v-prov" onclick="nav(this)"><span class="ico">&#9881;</span><span class="lbl">Провайдеры</span><span class="badge" id="nb-prov">17</span></button>
+    <button data-v="v-proxy" onclick="nav(this)"><span class="ico">&#8644;</span><span class="lbl">Прокси</span><span class="badge" id="nb-proxy">0</span></button>
+    <button data-v="v-mail" onclick="nav(this)"><span class="ico">&#9993;</span><span class="lbl">Почта</span></button>
+    <button data-v="v-bank" onclick="nav(this)"><span class="ico">&#9733;</span><span class="lbl">Банк</span><span class="badge" id="nb-bank">0</span></button>
+    <button data-v="v-deps" onclick="nav(this)"><span class="ico">&#9878;</span><span class="lbl">Зависимости</span></button>
+    <button data-v="v-cfg" onclick="nav(this)"><span class="ico">&#9874;</span><span class="lbl">Настройки</span></button>
+  </div>
+  <div id="sidefoot"><span class="dot r" id="sd-sidecar"></span>sidecar <span id="sd-sidecar-t">?</span><br><span class="dot g" id="sd-srv"></span>сервер :<span id="sd-port"></span></div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <span class="tb">ВОЛНЫ: <b class="acc" id="tb-run">0</b></span>
+    <span class="tb">ПРОКСИ: <b id="tb-px">0</b></span>
+    <span class="tb">ПОЧТА: <b id="tb-mail">0</b></span>
+    <span class="tb">БАНК: <b class="ok" id="tb-bank">0</b></span>
+    <span class="tb">2CAPTCHA: <b id="tb-2c">&mdash;</b></span>
+    <span class="tb" id="tb-clock" style="margin-left:auto"></span>
+  </div>
+  <div id="content">
+
+  <div class="view active" id="v-home">
+    <h2 class="vt">ОБЗОР</h2><div class="vs">состояние системы в реальном времени</div>
+    <div class="cards" id="home-cards"></div>
+    <div class="grid2">
+      <div class="panel"><h3>Активные волны</h3><div id="home-running" class="notes"></div></div>
+      <div class="panel"><h3>Банк по провайдерам</h3><div class="hbar-mini" id="home-bars"></div><div id="home-bank" class="notes" style="margin-top:8px"></div></div>
+    </div>
+    <div class="panel"><h3>История волн</h3><div id="home-hist" class="notes"></div></div>
+    <div class="panel"><h3>Быстрый старт</h3>
+      <div class="notes" style="line-height:2">
+      1. <b>ЗАВИСИМОСТИ</b> &mdash; поставь недостающее (<code>pip install -r requirements.txt</code>, <code>playwright install chromium</code>)<br>
+      2. <b>НАСТРОЙКИ</b> &mdash; впиши ключи (2captcha, IMAP, TG api_id/hash)<br>
+      3. <b>ПОЧТА</b> &mdash; загрузи пул <code>data/working_mails.txt</code> или используй voidash<br>
+      4. <b>ПРОКСИ</b> &mdash; нажми ЗАБРАТЬ (бесплатно) или вставь свои платные<br>
+      5. <b>ПРОВАЙДЕРЫ</b> &mdash; выбери таргет, жми RUN. Аккаунты падают в БАНК, экспорт CSV/JSONL</div>
+    </div>
+    <div class="notes" style="margin-top:18px">&#128123; <a href="https://t.me/AlStack">иишко</a> &middot; universal-autoreg v2 &middot; stdlib-only сервер, данные в <code>data/</code>, секреты в <code>config.json</code> (gitignored)</div>
+  </div>
+
+  <div class="view" id="v-prov">
+    <h2 class="vt">ПРОВАЙДЕРЫ</h2><div class="vs">клик по строке &mdash; детали и питфолы &middot; RUN N &mdash; волна на N аккаунтов</div>
+    <div class="row" style="margin-bottom:12px">
+      <input id="pf-q" placeholder="фильтр: имя / таргет / награда" style="width:260px" oninput="provRender()">
+      <select id="pf-captcha" onchange="provRender()"><option value="">капча: любая</option><option>none</option><option>free</option><option>paid</option></select>
+      <span class="notes" id="pf-count"></span>
+    </div>
+    <div class="panel" style="padding:0;overflow-x:auto"><table id="prov-table"></table></div>
+    <div id="prov-detail" class="panel" style="display:none"></div>
+  </div>
+
+  <div class="view" id="v-proxy">
+    <h2 class="vt">ПРОКСИ</h2><div class="vs">пул <code>data/proxies.txt</code> &middot; бесплатный забор + свои прокси + prune мёртвых</div>
+    <div class="cards" id="px-cards"></div>
+    <div class="grid2">
+      <div class="panel"><h3>Забор бесплатных</h3>
+        <div class="row"><button onclick="pxGrab(this)">&#8681; ЗАБРАТЬ</button><button class="sec" onclick="pxCheck(this)">ПРОВЕРИТЬ 150</button></div>
+        <div id="px-grab" class="notes" style="margin-top:10px"></div>
+      </div>
+      <div class="panel"><h3>Prune &mdash; вычистить мёртвые</h3>
+        <div class="row"><button class="sec" onclick="pxPrune(this)" id="px-prune-btn">&#9888; ПРОВЕРИТЬ ВЕСЬ ПУЛ, ОСТАВИТЬ ЖИВЫЕ</button></div>
+        <div class="bar" style="display:none" id="px-prune-bar"><i style="width:0%"></i></div>
+        <div id="px-prune" class="notes" style="margin-top:8px">прогоняет весь пул через live-чек (60 потоков) и перезаписывает файл живыми</div>
+      </div>
+    </div>
+    <div class="panel"><h3>Добавить свои прокси</h3>
+      <textarea id="px-add" rows="4" placeholder="host:port или http://user:pass@host:port — по строке / через запятую"></textarea>
+      <div class="row" style="margin-top:8px"><button onclick="pxAdd(this)">ДОБАВИТЬ В ПУЛ</button><span class="notes">платные резидентки со sticky-сессиями &mdash; сюда; дедуп автоматический</span></div>
+    </div>
+    <div class="panel"><h3>Образец пула (30)</h3><div id="px-sample" class="notes" style="max-height:180px;overflow-y:auto"></div></div>
+  </div>
+
+  <div class="view" id="v-mail">
+    <h2 class="vt">ПОЧТА</h2><div class="vs">три канала доставки OTP: t-online пул, voidash temp-inbox, gmail +alias</div>
+    <div class="grid2">
+      <div class="panel"><h3>T-ONLINE IMAP-ПУЛ</h3><div id="mail-tonline"></div>
+        <div class="notes" style="margin-top:8px">Файл: <code>data/working_mails.txt</code>, формат <code>email:password</code> по строке (canonical, без dash-алиасов). Индекс: <code>data/email_state.json</code>. IMAP-пароль &mdash; в НАСТРОЙКАХ.</div></div>
+      <div class="panel"><h3>VOIDASH TEMP-INBOX</h3>
+        <div class="row"><select id="va-domain"><option>voidash.bond</option><option>govno.eu.cc</option><option>musor.eu.cc</option><option>pomoi.eu.cc</option></select>
+        <button onclick="vaCreate(this)">СОЗДАТЬ INBOX</button></div>
+        <div id="va-result" class="notes" style="margin-top:10px"></div>
+        <div class="notes" style="margin-top:8px">Без регистрации, supply безлимит. Часть таргетов блокирует eu.cc-домены &mdash; смотри notes провайдера.</div></div>
+    </div>
+    <div class="panel"><h3>GMAIL APP-PASSWORD</h3><div id="mail-gmail"></div>
+      <div class="notes" style="margin-top:8px">user + 16-символьный app-password в НАСТРОЙКАХ. Плюс-алиасы канонизируются не всеми таргетами.</div></div>
+  </div>
+
+  <div class="view" id="v-bank">
+    <h2 class="vt">БАНК АККАУНТОВ</h2><div class="vs">data/bank.jsonl &middot; секреты маскируются &middot; клик по значению &mdash; копировать</div>
+    <div class="panel">
+      <div class="row" style="margin-bottom:10px">
+        <select id="bk-prov" onchange="bankRender()"><option value="">все провайдеры</option></select>
+        <input id="bk-q" placeholder="поиск" style="width:200px" onkeydown="if(event.key==='Enter')bankRender()">
+        <button class="sec" onclick="bankRender()">НАЙТИ</button>
+        <a href="/api/bank/export?fmt=csv"><button class="sec">ЭКСПОРТ CSV</button></a>
+        <a href="/api/bank/export?fmt=jsonl"><button class="sec">ЭКСПОРТ JSONL</button></a>
+        <span class="dim notes" id="bk-count"></span>
+      </div>
+      <div style="max-height:52vh;overflow:auto"><table id="bk-table"></table></div>
+      <div class="row" style="margin-top:10px"><button class="sec" id="bk-more" onclick="bankMore()">ЕЩЁ 200</button></div>
+    </div>
+  </div>
+
+  <div class="view" id="v-deps">
+    <h2 class="vt">ЗАВИСИМОСТИ</h2><div class="vs">dependency doctor &mdash; что доустановить для каждого провайдера</div>
+    <div class="panel">
+      <div id="deps-info" class="notes" style="margin-bottom:10px"></div>
+      <table id="deps-table"></table>
+      <div class="notes" style="margin-top:10px">Всё разом: <code>pip install -r requirements.txt</code> &middot; браузеры: <code>playwright install chromium</code>, <code>cloakbrowser fetch</code> &middot; captcha sidecar: <code>docker run -p 8877:8877 ghcr.io/waguriagentic/captcha-solver</code> (real_page=true)</div>
+    </div>
+  </div>
+
+  <div class="view" id="v-cfg">
+    <h2 class="vt">НАСТРОЙКИ</h2><div class="vs">config.json &mdash; локальный, в git не попадает</div>
+    <div class="panel">
+      <div id="cfg-form"></div>
+      <div class="row" style="margin-top:12px"><button onclick="cfgSave(this)">СОХРАНИТЬ</button><span class="notes">поля с *** не перезаписываются &mdash; оставь маску, чтобы значение не менялось</span></div>
+    </div>
+    <div class="panel"><h3>ENV-переменные</h3><div class="notes" style="line-height:1.9">
+      <code>UA_PORT</code> порт (8900) &middot; <code>UA_HOST</code> интерфейс (127.0.0.1) &middot; <code>UA_PYTHON</code> интерпретатор для волн (Python 3.11 нужен playwright/camoufox провайдерам) &middot; <code>UA_HOME</code> каталог данных &middot; <code>UA_TG_SESSIONS</code> каталог TG-сессий &middot; <code>TG_API_ID</code>/<code>TG_API_HASH</code> &middot; <code>GM_LOCAL</code>/<code>GM_APPPW</code> gmail
+    </div></div>
+  </div>
+
+  </div>
+
+  <div id="term">
+    <div id="termhead"><b>&#9654; LOG:</b> <span id="term-prov"></span><span class="notes" id="term-status"></span><button class="xbtn" onclick="closeTerm()">&#10005;</button></div>
+    <div id="termbody"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let MAN=null,BANK={},HEALTH={},HIST={history:[],running:[],prune:{}};
+let curLog=null,logOff=0,logTimer=null,bkOff=0;
+const $=id=>document.getElementById(id);
+function toast(m,ms){const t=$('toast');t.innerHTML=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',ms||4500)}
+function nav(btn){document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+ btn.classList.add('active');$(btn.dataset.v).classList.add('active');
+ const v=btn.dataset.v;
+ if(v==='v-proxy')pxRender();if(v==='v-mail')mailRender();if(v==='v-bank')bankInit();
+ if(v==='v-deps')depsRender();if(v==='v-cfg')cfgRender();if(v==='v-prov')provRender();}
+function tag(t){const f=/free|none/i.test(t||'')?'free':/2captcha|paid/i.test(t||'')?'paid':'';return '<span class="tag '+f+'">'+(t||'-')+'</span>'}
+function ago(ts){const s=Math.max(0,Math.round(Date.now()/1000-ts));if(s<60)return s+'с назад';if(s<3600)return Math.round(s/60)+'м назад';return Math.round(s/3600)+'ч назад'}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+
+async function refresh(){
+ try{
+  const[hm,hb,hh,hs]=await Promise.all([
+   fetch('/api/manifest').then(r=>r.json()),
+   fetch('/api/bank').then(r=>r.json()),
+   fetch('/api/health').then(r=>r.json()),
+   fetch('/api/history').then(r=>r.json())]);
+  MAN=hm;BANK=hb;HEALTH=hh;HIST=hs;
+ }catch(e){return}
+ const total=Object.values(BANK).reduce((s,v)=>s+(v.total||0),0);
+ $('tb-run').textContent=HIST.running.length;
+ $('tb-px').textContent=HEALTH.proxies.total||0;
+ $('tb-mail').textContent=HEALTH.emails.pool||0;
+ $('tb-bank').textContent=total;
+ $('tb-2c').textContent=(HEALTH.twocaptcha&&HEALTH.twocaptcha.status==1)?'$'+HEALTH.twocaptcha.request:'—';
+ $('tb-clock').textContent=new Date().toLocaleTimeString();
+ $('nb-bank').textContent=total;$('nb-bank').className='badge'+(total?' hot':'');
+ $('nb-proxy').textContent=HEALTH.proxies.total||0;
+ $('sd-sidecar').className='dot '+(HEALTH.sidecar&&HEALTH.sidecar.ok?'g':'r');
+ $('sd-sidecar-t').textContent=(HEALTH.sidecar&&HEALTH.sidecar.ok)?'UP':'DOWN';
+ $('sd-port').textContent=location.port;
+ $('home-cards').innerHTML=
+  card(HIST.running.length,'активных волн')+
+  card(HEALTH.proxies.total||0,'прокси в пуле')+
+  card(HEALTH.emails.pool||0,'t-online ящиков')+
+  card(total,'аккаунтов в банке')+
+  card((HEALTH.sidecar&&HEALTH.sidecar.ok)?'UP':'DOWN','captcha sidecar')+
+  card((HEALTH.twocaptcha&&HEALTH.twocaptcha.status==1)?'$'+HEALTH.twocaptcha.request:'—','2captcha');
+ $('home-running').innerHTML=HIST.running.length?HIST.running.map(r=>'<span class="tag acc">'+r.provider+' x'+r.count+'</span> <span class=dim>pid '+r.pid+', '+ago(Date.now()/1000-r.elapsed)+'</span> <button class="sec" style="padding:2px 8px" onclick="showLog(\''+r.provider+'\')">LOG</button> <button class="stop" style="padding:2px 8px" onclick="stop(\''+r.provider+'\')">STOP</button>').join('<br><br>'):'<span class=dim>нет активных волн — зайди в ПРОВАЙДЕРЫ и жми RUN</span>';
+ const ents=Object.entries(BANK).sort((a,b)=>b[1].total-a[1].total).slice(0,12);
+ const mx=ents.length?ents[0][1].total:1;
+ $('home-bars').innerHTML=ents.map(([k,v])=>'<i style="height:'+Math.max(4,34*v.total/mx)+'px" title="'+k+': '+v.total+'"></i>').join('');
+ $('home-bank').innerHTML=ents.map(([k,v])=>'<span class="tag">'+k+': <b>'+v.total+'</b></span>').join(' ')||'<span class=dim>пусто</span>';
+ $('home-hist').innerHTML=HIST.history.length?('<table><tr><th>provider</th><th>волна</th><th>старт</th><th>длилась</th><th>exit</th></tr>'+HIST.history.slice(0,12).map(h=>'<tr><td class=pid>'+h.provider+'</td><td>x'+h.count+'</td><td>'+new Date(h.started*1000).toLocaleString()+'</td><td>'+Math.round((h.ended||h.started)-h.started)+'с</td><td>'+(h.exit===0?'<span class=ok>0</span>':'<span class=bad>'+(h.exit==null?'...':h.exit)+'</span>')+'</td></tr>').join('')+'</table>'):'<span class=dim>волн ещё не было</span>';
+ const pb=$('px-prune-bar'),pbtn=$('px-prune-btn');
+ if(HIST.prune&&HIST.prune.running){
+  pb.style.display='block';
+  const pc=HIST.prune.total?Math.round(100*HIST.prune.tested/HIST.prune.total):0;
+  pb.firstElementChild.style.width=pc+'%';
+  $('px-prune').innerHTML='проверено <b>'+HIST.prune.tested+'</b>/'+HIST.prune.total+', живых <b class=ok>'+HIST.prune.alive+'</b> ('+pc+'%)';
+  pbtn.disabled=true;
+ }else if(pbtn.disabled){
+  pbtn.disabled=false;pb.style.display='none';
+  if(HIST.prune.total)$('px-prune').innerHTML='готово: из '+HIST.prune.total+' живых <b class=ok>'+HIST.prune.alive+'</b> — файл перезаписан';
+  pxRender();
+ }
+ if(curLog&&MAN){const p=MAN.providers.find(x=>x.id===curLog);
+  if(p)$('term-status').textContent=p.running?('pid '+p.pid+' · идёт'):'завершён';}
+ if($('v-prov').classList.contains('active'))provRender();
+}
+function card(v,l){return '<div class="card"><b class="big">'+v+'</b><span>'+l+'</span></div>'}
+
+function provRender(){
+ if(!MAN)return;
+ const ae=document.activeElement;
+ if(ae&&$('prov-table').contains(ae))return;
+ const q=($('pf-q').value||'').toLowerCase(),cf=$('pf-captcha').value;
+ let ps=MAN.providers.filter(p=>{
+  const s=(p.id+(p.target||'')+(p.reward||'')+(p.notes||'')).toLowerCase();
+  if(q&&!s.includes(q))return false;
+  const c=(p.captcha||'').toLowerCase();
+  if(cf==='none'&&!c.includes('none'))return false;
+  if(cf==='free'&&!c.includes('free'))return false;
+  if(cf==='paid'&&!/2captcha|paid|yes/.test(c))return false;
+  return true;});
+ $('pf-count').textContent=ps.length+' из '+MAN.providers.length;
+ let rows='<tr><th>provider</th><th>таргет</th><th>auth</th><th>капча</th><th>награда</th><th style="text-align:right">банк</th><th>запуск</th></tr>';
+ for(const p of ps){
+  const st=BANK[p.id]||{total:0,with_token:0};
+  const ctl=p.running?'<button class="stop" onclick="stop(\''+p.id+'\')">STOP '+p.pid+'</button> <button class="sec" onclick="showLog(\''+p.id+'\')">LOG</button>':
+   '<input type="number" id="n_'+p.id+'" value="5" min="1" max="500"> <button onclick="run(\''+p.id+'\')">RUN</button> <button class="sec" onclick="showLog(\''+p.id+'\')">LOG</button>';
+  rows+='<tr style="cursor:pointer" onclick="provDetail(\''+p.id+'\')"><td class="pid">'+(p.running?'<span class="dot o"></span>':'')+p.id+'</td>'+
+   '<td>'+esc(p.target)+'</td><td>'+tag(p.auth)+'</td><td>'+tag(p.captcha)+'</td><td class=notes>'+esc(p.reward||'')+'</td>'+
+   '<td style="text-align:right"><b>'+(st.total||0)+'</b><br><span class=notes>'+(st.with_token||0)+' ток</span></td>'+
+   '<td onclick="event.stopPropagation()">'+ctl+'</td></tr>';
+ }
+ $('prov-table').innerHTML=rows;
+}
+function provDetail(id){
+ const p=MAN.providers.find(x=>x.id===id);if(!p)return;
+ const st=BANK[id]||{total:0,with_token:0};
+ $('prov-detail').style.display='block';
+ $('prov-detail').innerHTML='<h3>'+p.id+'</h3><div class="row" style="margin-bottom:8px">'+
+  '<span class="tag acc">'+esc(p.target)+'</span>'+tag(p.auth)+tag(p.captcha)+
+  (p.email?'<span class="tag">'+esc(p.email)+'</span>':'')+
+  (p.proxy?'<span class="tag">'+esc(p.proxy)+' proxy</span>':'')+'</div>'+
+  '<div class="notes" style="margin-bottom:8px">награда: <b class=ok>'+esc(p.reward||'—')+'</b> · банк: '+(st.total||0)+' ('+(st.with_token||0)+' с токеном)</div>'+
+  '<div class="notes" style="line-height:1.8;white-space:pre-wrap">'+esc(p.notes||'нет заметок')+'</div>'+
+  '<div class="row" style="margin-top:10px"><button class="sec" onclick="bkFilter(\''+id+'\')">БАНК: '+id+'</button><button class="sec" onclick="showLog(\''+id+'\')">ПОСЛЕДНИЙ ЛОГ</button></div>';
+ $('prov-detail').scrollIntoView({behavior:'smooth'});
+}
+function bkFilter(id){document.querySelector('[data-v=v-bank]').click();setTimeout(()=>{$('bk-prov').value=id;bankRender();},80)}
+async function run(id){const n=$('n_'+id).value;
+ const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:id,count:+n})}).then(r=>r.json());
+ if(r.error)toast('<span class=bad>'+esc(r.error)+'</span>');else{toast('волна <b>'+id+'</b> x'+n+' запущена (pid '+r.pid+')');showLog(id);}refresh();}
+async function stop(id){await fetch('/api/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:id})});toast('остановлено: '+id);refresh();}
+
+function showLog(id){curLog=id;logOff=0;$('term').classList.add('open');$('term-prov').textContent=id;$('term-status').textContent='';$('termbody').textContent='';
+ if(logTimer)clearInterval(logTimer);logTimer=setInterval(pullLog,1500);pullLog();}
+function closeTerm(){$('term').classList.remove('open');if(logTimer)clearInterval(logTimer);logTimer=null;curLog=null;}
+async function pullLog(){if(!curLog)return;
+ try{const r=await fetch('/api/log?provider='+curLog+'&offset='+logOff).then(r=>r.json());
+ if(r.text){logOff=r.offset;const b=$('termbody');b.textContent+=r.text;b.scrollTop=b.scrollHeight;}}catch(e){}}
+
+async function pxRender(){try{const d=await fetch('/api/proxies').then(r=>r.json());
+ $('px-cards').innerHTML=card(d.total,'в пуле')+card((d.sample||[]).length?'есть образец':'пуст','')+
+  '<div class="card"><span>файл пула</span><div class="notes" style="margin-top:6px;word-break:break-all">'+esc(d.txt_file)+'</div></div>';
+ $('px-sample').innerHTML=(d.sample||[]).map(x=>'<span class="tag">'+x+'</span>').join(' ')||'<span class=dim>пусто — нажми ЗАБРАТЬ</span>';}catch(e){}}
+async function pxGrab(btn){btn.disabled=true;btn.textContent='ЗАБИРАЮ...';
+ try{const r=await fetch('/api/proxies/grab',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json());
+ btn.disabled=false;btn.innerHTML='&#8681; ЗАБРАТЬ';
+ if(r.ok){let s='добавлено <b class=ok>'+r.added+'</b>, пул ~'+r.pool_total+'<br>';
+  for(const[k,v]of Object.entries(r.per_source||{}))s+='<span class="tag'+(typeof v==='string'?' bad':'')+'">'+k+': '+(typeof v==='string'?esc(v).slice(0,40):v)+'</span> ';
+  $('px-grab').innerHTML=s;pxRender();refresh();}
+ else $('px-grab').innerHTML='<span class=bad>'+esc(r.error)+'</span>';}catch(e){btn.disabled=false;btn.innerHTML='&#8681; ЗАБРАТЬ';}}
+async function pxCheck(btn){btn.disabled=true;btn.textContent='ПРОВЕРЯЮ...';
+ try{const r=await fetch('/api/proxies/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({limit:150})}).then(r=>r.json());
+ btn.disabled=false;btn.textContent='ПРОВЕРИТЬ 150';
+ $('px-grab').innerHTML=r.ok?('проверено '+r.tested+', живых <b class=ok>'+r.alive+'</b><br>'+(r.sample||[]).map(x=>'<span class="tag">'+x+'</span>').join(' ')):('<span class=bad>'+esc(r.error)+'</span>');}catch(e){btn.disabled=false;btn.textContent='ПРОВЕРИТЬ 150';}}
+async function pxPrune(btn){try{const r=await fetch('/api/proxies/prune',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json());
+ if(!r.ok)toast('<span class=bad>'+esc(r.error)+'</span>');else{btn.disabled=true;toast('prune запущен — прогресс выше');}}catch(e){}}
+async function pxAdd(btn){const txt=$('px-add').value.trim();if(!txt)return toast('вставь прокси');
+ try{const r=await fetch('/api/proxies/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt})}).then(r=>r.json());
+ if(r.ok){$('px-add').value='';toast('добавлено <b class=ok>'+r.added+'</b>, пул '+r.total);pxRender();refresh();}
+ else toast('<span class=bad>'+esc(r.error)+'</span>');}catch(e){}}
+
+async function mailRender(){try{const d=await fetch('/api/emails').then(r=>r.json());
+ const t=d.tonline||{};
+ $('mail-tonline').innerHTML='<div class="row" style="margin-bottom:8px"><b style="color:var(--acc);font-size:22px">'+(t.free||0)+'</b><span class=dim>свободных из '+(t.total||0)+' (использовано '+(t.used||0)+')</span></div>'+
+  '<div class="bar"><i style="width:'+(t.total?Math.round(100*t.used/t.total):0)+'%"></i></div>'+
+  '<div>IMAP: '+(t.configured?'<span class=ok>настроен</span>':'<span class=bad>не настроен</span> — пароль в НАСТРОЙКАХ')+'</div>';
+ const g=d.gmail||{};
+ $('mail-gmail').innerHTML=g.configured?'<span class=ok>настроен</span> ('+esc(g.user||'')+')':'<span class=bad>не настроен</span> — user + app-password в НАСТРОЙКАХ';}catch(e){}}
+async function vaCreate(btn){btn.disabled=true;btn.textContent='СОЗДАЮ...';
+ try{const r=await fetch('/api/emails/voidash',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:$('va-domain').value})}).then(r=>r.json());
+ btn.disabled=false;btn.textContent='СОЗДАТЬ INBOX';
+ $('va-result').innerHTML=r.ok?'<span class=ok>создан:</span> <code>'+esc(r.address)+'</code> <span class="copy" data-v="'+esc(r.address)+'" onclick="cp(this.dataset.v)">копировать</span><br>session key: ...'+r.session_key_tail:'<span class=bad>'+esc(r.error)+'</span>';}catch(e){btn.disabled=false;btn.textContent='СОЗДАТЬ INBOX';}}
+
+function cp(t){navigator.clipboard.writeText(t).then(()=>toast('скопировано',1200)).catch(()=>toast('<span class=bad>не скопировалось</span>'))}
+async function bankInit(){const sel=$('bk-prov');const cur=sel.value;
+ sel.innerHTML='<option value="">все провайдеры</option>';
+ for(const k of Object.keys(BANK).sort())sel.innerHTML+='<option value="'+k+'">'+k+' ('+BANK[k].total+')</option>';
+ sel.value=cur;bkOff=0;bankRender();}
+async function bankRender(){bkOff=0;$('bk-table').innerHTML='';await bankMore();}
+async function bankMore(){try{const prov=$('bk-prov').value,q=$('bk-q').value;
+ const d=await fetch('/api/bank/list?provider='+encodeURIComponent(prov)+'&q='+encodeURIComponent(q)+'&offset='+bkOff+'&limit=200').then(r=>r.json());
+ let html=bkOff===0?'<tr><th>provider</th><th>email</th><th>детали (клик — копировать)</th><th>когда</th></tr>':$('bk-table').innerHTML;
+ for(const r of (d.rows||[])){
+  const det=Object.entries(r).filter(([k])=>!['provider','email','ts'].includes(k)).map(([k,v])=>{
+   const s=typeof v==='string'?v:JSON.stringify(v);
+   return k+'=<span class="copy" data-v="'+esc(s.slice(0,150)).replace(/'/g,'&#39;')+'" onclick="cp(this.dataset.v)">'+esc(s.slice(0,46))+(s.length>46?'…':'')+'</span>';}).join('<br>');
+  html+='<tr><td class=pid>'+esc(r.provider||'?')+'</td><td>'+(r.email?'<span class="copy" data-v="'+esc(r.email)+'" onclick="cp(this.dataset.v)">'+esc(r.email)+'</span>':'')+'</td><td>'+det+'</td><td class=notes>'+(r.ts?new Date(r.ts*1000).toLocaleString():'')+'</td></tr>';}
+ $('bk-table').innerHTML=html;bkOff+=(d.rows||[]).length;
+ $('bk-count').textContent='показано '+bkOff+' из '+(d.total||0);
+ $('bk-more').style.display=bkOff<(d.total||0)?'':'none';}catch(e){}}
+
+async function depsRender(){try{const d=await fetch('/api/deps').then(r=>r.json());
+ $('deps-info').innerHTML='python <b>'+d.python+'</b> · platform <b>'+d.platform+'</b> · готово: <b class="'+(d.ready===d.total?'ok':'')+'">'+d.ready+'/'+d.total+'</b>'+(d.chrome_cdp!==undefined?(' · chrome CDP: '+(d.chrome_cdp?'<span class=ok>есть</span>':'<span class=bad>нет</span>')):'');
+ let rows='<tr><th>provider</th><th>статус</th><th>чего не хватает</th><th>заметки</th></tr>';
+ for(const r of d.rows)rows+='<tr><td class=pid>'+esc(r.provider)+'</td><td>'+(r.ok?'<span class=ok>READY</span>':'<span class=bad>НЕТ</span>')+'</td><td>'+(r.missing.map(x=>'<span class="tag bad">'+esc(x)+'</span>').join(' ')||'—')+'</td><td class=notes>'+esc(r.notes)+'</td></tr>';
+ $('deps-table').innerHTML=rows;}catch(e){}}
+
+const CFG_FIELDS=[
+ ['twocaptcha_key','2captcha ключ (fallback-капча)','password'],
+ ['sidecar','captcha sidecar URL','text'],
+ ['cdp_chrome','chrome CDP URL','text'],
+ ['tonline_imap.host','t-online IMAP host','text'],
+ ['tonline_imap.user','t-online IMAP user','text'],
+ ['tonline_imap.password','t-online IMAP password','password'],
+ ['gmail_imap.user','gmail user','text'],
+ ['gmail_imap.password','gmail app-password','password'],
+ ['telegram.api_id','telegram api_id','text'],
+ ['telegram.api_hash','telegram api_hash','password'],
+];
+async function cfgRender(){try{const cfg=await fetch('/api/config').then(r=>r.json());
+ let html='';
+ for(const[path,label,type]of CFG_FIELDS){
+  let v=cfg;for(const p of path.split('.'))v=(v||{})[p];
+  html+='<div class="row" style="max-width:760px;margin-bottom:8px"><label style="width:250px" class=dim>'+label+'</label>'+
+   '<input data-path="'+path+'" type="'+(v?'password':type)+'" value="'+(v===undefined||v===null?'':esc(v))+'" style="flex:1"></div>';}
+ $('cfg-form').innerHTML=html;}catch(e){}}
+async function cfgSave(btn){const patch={};
+ document.querySelectorAll('#cfg-form input').forEach(i=>{
+  const val=i.value.trim();if(!val)return;
+  const parts=i.dataset.path.split('.');let o=patch;
+  for(let k=0;k<parts.length-1;k++){o[parts[k]]=o[parts[k]]||{};o=o[parts[k]];}
+  o[parts[parts.length-1]]=val;});
+ btn.disabled=true;btn.textContent='СОХРАНЯЮ...';
+ try{const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).then(r=>r.json());
+ btn.disabled=false;btn.textContent='СОХРАНИТЬ';
+ toast(r.ok?'<span class=ok>config.json сохранён</span>':'<span class=bad>'+esc(r.error||'ошибка')+'</span>');
+ if(r.ok)cfgRender();}catch(e){btn.disabled=false;btn.textContent='СОХРАНИТЬ';}}
+
+refresh();setInterval(refresh,3000);
+</script>
+</body>
+</html>

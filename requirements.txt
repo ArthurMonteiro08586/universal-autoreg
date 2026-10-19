@@ -1,0 +1,6 @@
+requests>=2.31
+curl_cffi>=0.7
+playwright>=1.44
+pyotp>=2.9
+websocket-client>=1.7
+telethon>=1.36
